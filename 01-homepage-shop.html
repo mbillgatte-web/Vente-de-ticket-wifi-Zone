@@ -379,8 +379,10 @@
         // Gestion des clics sur les boutons (placeholder pour la navigation)
         document.querySelectorAll('.btn-primary').forEach((btn, index) => {
             btn.addEventListener('click', () => {
+                // stocker la sélection (optionnel) et naviguer vers le checkout
                 const durees = ['1h', '24h', '7j'];
-                alert(`Redirigé vers le paiement pour ${durees[index]}`);
+                try { localStorage.setItem('selectedDuration', durees[index]); } catch (e) {}
+                location.hash = '#checkout';
             });
         });
     </script>

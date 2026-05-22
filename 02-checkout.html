@@ -529,8 +529,9 @@
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             if (validateForm()) {
-                alert('Redirecting to payment...');
-                // window.location.href = '/payment';
+                // stocker les infos et naviguer vers la page de paiement
+                try { localStorage.setItem('checkoutData', JSON.stringify({ email: document.getElementById('email').value.trim(), phone: document.getElementById('phone').value.trim() })); } catch (e) {}
+                location.hash = '#payment';
             }
         });
 

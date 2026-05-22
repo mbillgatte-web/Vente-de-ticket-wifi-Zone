@@ -507,8 +507,9 @@
             e.preventDefault();
             const selectedMethod = document.querySelector('input[name="payment_method"]:checked');
             if (selectedMethod) {
-                alert(`Redirecting to ${selectedMethod.value.toUpperCase()} payment...`);
-                // window.location.href = `/payment/${selectedMethod.value}`;
+                // simulate payment then navigate to confirmation
+                try { localStorage.setItem('paymentMethod', selectedMethod.value); } catch (e) {}
+                location.hash = '#confirmation';
             }
         });
 

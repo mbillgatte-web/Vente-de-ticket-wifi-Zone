@@ -399,18 +399,18 @@
 
     <script>
         function retryPayment() {
-            alert('Redirecting to payment retry...');
-            // window.location.href = '/payment';
+            // retry payment flow
+            location.hash = '#payment';
         }
 
         function changeMethod() {
-            alert('Redirecting to payment methods...');
-            // window.location.href = '/payment?change_method=true';
+            // go to payment and indicate method change (can be handled via localStorage)
+            try { localStorage.setItem('changePaymentMethod', '1'); } catch (e) {}
+            location.hash = '#payment';
         }
 
         function goHome() {
-            alert('Redirecting to home...');
-            // window.location.href = '/';
+            location.hash = '#home';
         }
     </script>
 </body>
