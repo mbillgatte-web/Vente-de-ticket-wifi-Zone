@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Zone - Entrée</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin:0; background:#f9fafb; color:#111827; }
+        header { background:#fff; border-bottom:1px solid #e5e7eb; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; }
+        .logo { font-weight:700; color:#2563EB; display:flex; gap:0.5rem; align-items:center; }
+        nav a { margin-left:1rem; color:#4b5563; text-decoration:none; font-weight:500; }
+        nav a.active { color:#2563EB; }
+        main { padding:2rem; max-width:1200px; margin:0 auto; }
+        footer { text-align:center; padding:2rem; color:#6b7280; font-size:0.9rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">📡 <span>WiFi Zone</span></div>
+        <nav>
+            <a href="#home" id="link-home">Accueil</a>
+            <a href="#checkout" id="link-checkout">Checkout</a>
+            <a href="#history" id="link-history">Historique</a>
+            <a href="#admin-dashboard" id="link-admin">Admin</a>
+        </nav>
+    </header>
+
+    <main id="app">
+        <p>Chargement...</p>
+    </main>
+
+    <footer>
+        &copy; 2024 WiFi Zone
+    </footer>
+
+    <script>
+        const routes = {
+            '': '01-homepage-shop.html',
+            '#home': '01-homepage-shop.html',
+            '#checkout': '02-checkout.html',
+            '#payment': '03-payment.html',
+            '#confirmation': '04-confirmation.html',
+            '#payment-error': '05-payment-error.html',
+            '#history': '06-history.html',
+            '#admin-dashboard': '07-admin-dashboard.html',
+            '#admin-tickets': '08-admin-tickets.html'
+        };
+
+        async function loadRoute() {
+            const route = location.hash || '';
+            const file = routes[route] || routes[''];
+            try {
+                const res = await fetch(file);
+                if (!res.ok) throw new Error('Fichier introuvable');
+                const text = await res.text();
+                const tmp = document.createElement('div');
+                tmp.innerHTML = text;
+                const fetchedBody = tmp.querySelector('body') || tmp;
+                document.getElementById('app').innerHTML = fetchedBody.innerHTML;
+                const fetchedTitle = tmp.querySelector('title');
+                if (fetchedTitle) document.title = fetchedTitle.textContent;
+                updateActiveLink(route);
+                // Re-bind internal page links that should use the router
+                document.querySelectorAll('#app a').forEach(a => {
+                    const href = a.getAttribute('href');
+                    if (!href) return;
+                    // If link points to one of the known files, convert to hash route
+                    for (const [h, f] of Object.entries(routes)) {
+                        if (f === href) {
+                            a.setAttribute('href', h || '#home');
+                        }
+                    }
+                });
+            } catch (err) {
+                document.getElementById('app').innerHTML = '<p>Impossible de charger la page.</p>';
+                console.error(err);
+            }
+        }
+
+        function updateActiveLink(route) {
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            const idMap = {
+                '#home': 'link-home',
+                '#checkout': 'link-checkout',
+                '#history': 'link-history',
+                '#admin-dashboard': 'link-admin'
+            };
+            const id = idMap[route] || 'link-home';
+            const el = document.getElementById(id);
+            if (el) el.classList.add('active');
+        }
+
+        window.addEventListener('hashchange', loadRoute);
+        window.addEventListener('load', loadRoute);
+    </script>
+</body>
+</html>
