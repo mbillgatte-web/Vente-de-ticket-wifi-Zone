@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des tickets - WiFi Zone Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #2563EB;
+            --color-primary-dark: #1E40AF;
+            --color-primary-light: #DBEAFE;
+            --color-success: #10B981;
+            --color-success-light: #D1FAE5;
+            --color-warning: #F59E0B;
+            --color-warning-light: #FEF3C7;
+            --color-error: #EF4444;
+            --color-error-light: #FEE2E2;
+            --color-gray-50: #F9FAFB;
+            --color-gray-100: #F3F4F6;
+            --color-gray-200: #E5E7EB;
+            --color-gray-300: #D1D5DB;
+            --color-gray-600: #4B5563;
+            --color-gray-900: #111827;
+            --color-white: #FFFFFF;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--color-gray-50);
+            color: var(--color-gray-900);
+        }
+
+        /* Header */
+        header {
+            background: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--color-gray-600);
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--color-primary);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--color-gray-600);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--color-gray-200);
+            margin-bottom: 2rem;
+            gap: 2rem;
+        }
+
+        .tab-btn {
+            padding: 1rem 0;
+            border: none;
+            background: none;
+            color: var(--color-gray-600);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            bottom: -2px;
+        }
+
+        .tab-btn:hover {
+            color: var(--color-primary);
+        }
+
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: var(--color-white);
+            border: 2px dashed var(--color-primary);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .upload-section:hover {
+            background: var(--color-primary-light);
+            border-color: var(--color-primary-dark);
+        }
+
+        .upload-section.dragover {
+            background: var(--color-primary-light);
+            border-color: var(--color-primary-dark);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-text {
+            color: var(--color-gray-600);
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-hint {
+            color: var(--color-gray-600);
+            font-size: 0.85rem;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .btn-upload {
+            display: inline-block;
+            background: var(--color-primary);
+            color: var(--color-white);
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-upload:hover {
+            background: var(--color-primary-dark);
+        }
+
+        /* Paste Section */
+        .paste-section {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .paste-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .paste-section p {
+            color: var(--color-gray-600);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--color-gray-300);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 200px;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
+
+        /* Validation Section */
+        .validation-section {
+            background: var(--color-white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--color-gray-200);
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .validation-section.show {
+            display: block;
+        }
+
+        .validation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .validation-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-icon {
+            font-size: 1.5rem;
+        }
+
+        .status-info h3 {
+            margin-bottom: 0.25rem;
+        }
+
+        .status-info p {
+            color: var(--color-gray-600);
+            font-size: 0.85rem;
+        }
+
+        /* Preview Table */
+        .preview-table {
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--color-gray-50);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--color-gray-900);
+            font-size: 0.9rem;
+            border: 1px solid var(--color-gray-200);
+        }
+
+        td {
+            padding: 1rem;
+            border: 1px solid var(--color-gray-200);
+            font-size: 0.9rem;
+            color: var(--color-gray-600);
+        }
+
+        tbody tr:nth-child(even) {
+            background: var(--color-gray-50);
+        }
+
+        /* Action Buttons */
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: var(--color-white);
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--color-gray-200);
+            color: var(--color-gray-900);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-gray-300);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: var(--color-white);
+        }
+
+        .btn-success:hover {
+            background: var(--color-success);
+            opacity: 0.9;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+            border-left: 4px solid;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: var(--color-success-light);
+            color: var(--color-success);
+            border-left-color: var(--color-success);
+        }
+
+        .alert-error {
+            background: var(--color-error-light);
+            color: var(--color-error);
+            border-left-color: var(--color-error);
+        }
+
+        .alert-warning {
+            background: var(--color-warning-light);
+            color: var(--color-warning);
+            border-left-color: var(--color-warning);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.3rem;
+            }
+
+            .tabs {
+                gap: 1rem;
+            }
+
+            .tab-btn {
+                font-size: 0.9rem;
+                padding: 0.75rem 0;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+
+        @media (max-width: 375px) {
+            .upload-section {
+                padding: 1.5rem 1rem;
+            }
+
+            .upload-icon {
+                font-size: 2rem;
+            }
+
+            .upload-title {
+                font-size: 1rem;
+            }
+
+            table {
+                font-size: 0.7rem;
+            }
+
+            th, td {
+                padding: 0.5rem 0.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">📡 WiFi Zone Admin</div>
+        <div class="header-nav">
+            <a href="#dashboard" class="nav-link">Dashboard</a>
+            <a href="#tickets" class="nav-link active">Gérer tickets</a>
+            <a href="#stats" class="nav-link">Statistiques</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Gestion des tickets WiFi</h1>
+            <p>Importez vos tickets depuis Google Sheets ou CSV</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('upload')">📤 Importer fichier</button>
+            <button class="tab-btn" onclick="switchTab('paste')">📋 Coller données</button>
+        </div>
+
+        <!-- Tab 1: Upload -->
+        <div id="upload" class="tab-content active">
+            <div class="upload-section" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📁</div>
+                <div class="upload-title">Glissez-déposez votre fichier ici</div>
+                <div class="upload-text">ou cliquez pour parcourir</div>
+                <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" onchange="handleFileSelect(event)">
+                <div class="upload-hint">
+                    Formats supportés: CSV, Excel (.xlsx, .xls)<br>
+                    Colonnes attendues: Code | Durée | Prix
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Paste -->
+        <div id="paste" class="tab-content">
+            <div class="paste-section">
+                <h3>Collez vos données CSV</h3>
+                <p>Format: Code,Durée,Prix (une ligne par ticket)</p>
+                <textarea id="pasteArea" placeholder="WIFI-ABC123,1h,500&#10;WIFI-XYZ789,24h,1500&#10;..."></textarea>
+                <button class="btn btn-primary" style="margin-top: 1rem; width: auto;" onclick="processPaste()">✓ Valider données</button>
+            </div>
+        </div>
+
+        <!-- Validation Section -->
+        <div id="validationSection" class="validation-section">
+            <div class="validation-header">
+                <div class="validation-status">
+                    <div class="status-icon">✓</div>
+                    <div class="status-info">
+                        <h3>Données valides</h3>
+                        <p id="ticketCount">0 tickets détectés</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-table">
+                <table id="previewTable">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Durée</th>
+                            <th>Prix</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="previewBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="cancelImport()">Annuler</button>
+                <button class="btn btn-success" onclick="confirmImport()">✓ Importer {count} tickets</button>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="successAlert" class="alert alert-success">
+            ✓ <strong>Succès!</strong> Les {count} tickets ont été importés avec succès.
+        </div>
+
+        <div id="errorAlert" class="alert alert-error">
+            ✗ <strong>Erreur!</strong> <span id="errorMsg"></span>
+        </div>
+    </div>
+
+    <script>
+        let importedData = [];
+
+        // Drag and drop
+        const dropZone = document.getElementById('dropZone');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length) {
+                handleFile(files[0]);
+            }
+        }
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const csv = e.target.result;
+                processData(csv);
+            };
+            reader.readAsText(file);
+        }
+
+        function processPaste() {
+            const data = document.getElementById('pasteArea').value;
+            if (!data.trim()) {
+                showError('Veuillez coller des données');
+                return;
+            }
+            processData(data);
+        }
+
+        function processData(csv) {
+            const lines = csv.trim().split('\\n');
+            importedData = [];
+
+            let validCount = 0;
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                const [code, duration, price] = line.split(',').map(s => s.trim());
+                
+                if (code && duration && price) {
+                    importedData.push({ code, duration, price, index: i });
+                    validCount++;
+                }
+            }
+
+            if (importedData.length === 0) {
+                showError('Aucun ticket valide détecté. Format attendu: Code,Durée,Prix');
+                return;
+            }
+
+            showValidation(validCount);
+        }
+
+        function showValidation(count) {
+            document.getElementById('ticketCount').textContent = count + ' tickets détectés';
+            document.querySelector('.btn-success').textContent = '✓ Importer ' + count + ' tickets';
+
+            const tbody = document.getElementById('previewBody');
+            tbody.innerHTML = '';
+
+            importedData.slice(0, 5).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.code}</td>
+                    <td>${row.duration}</td>
+                    <td>${row.price} FCFA</td>
+                    <td><span style="color: var(--color-success); font-weight: 600;">✓ Valide</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (importedData.length > 5) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="4" style="text-align: center; color: var(--color-gray-600);">... et ${importedData.length - 5} autres</td>`;
+                tbody.appendChild(tr);
+            }
+
+            document.getElementById('validationSection').classList.add('show');
+        }
+
+        function cancelImport() {
+            importedData = [];
+            document.getElementById('validationSection').classList.remove('show');
+            document.getElementById('pasteArea').value = '';
+        }
+
+        function confirmImport() {
+            alert('Importation de ' + importedData.length + ' tickets...');
+            // Simulating success
+            document.getElementById('successAlert').textContent = '✓ Succès! Les ' + importedData.length + ' tickets ont été importés avec succès.';
+            document.getElementById('successAlert').classList.add('show');
+            setTimeout(() => {
+                document.getElementById('validationSection').classList.remove('show');
+                importedData = [];
+            }, 2000);
+        }
+
+        function showError(msg) {
+            document.getElementById('errorMsg').textContent = msg;
+            document.getElementById('errorAlert').classList.add('show');
+            setTimeout(() => {
+                document.getElementById('errorAlert').classList.remove('show');
+            }, 5000);
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
